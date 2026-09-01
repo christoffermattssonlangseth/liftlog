@@ -1,14 +1,16 @@
 # LiftLog — iOS workout logger
 
-A native SwiftUI app that logs workouts into `../training.md` (this repo's format)
-and pushes each entry straight to GitHub via the Contents API. No server, no
+A native SwiftUI app that logs workouts into a plain-text `training.md` and
+pushes each entry straight to GitHub via the Contents API. No server, no
 database — `training.md` stays the single source of truth, human-readable and
-diff-friendly.
+diff-friendly. The log lives in its own repo
+([christoffermattssonlangseth/training.md](https://github.com/christoffermattssonlangseth/training.md));
+point the app at it from the **Settings** tab.
 
 ## Open & run
-- Open **`LiftLog/LiftLog.xcodeproj`** in Xcode.
-- Source lives in `LiftLog/LiftLog/` (an Xcode 16 synchronized folder, so files
-  in it are part of the target automatically — just add new files there).
+- Open **`LiftLog.xcodeproj`** in Xcode.
+- Source lives in `LiftLog/` (an Xcode 16 synchronized folder, so files in it
+  are part of the target automatically — just add new files there).
 - Select your iPhone as the run destination and press ▶. Free provisioning runs
   it for 7 days per rebuild; a paid Apple Developer account keeps it installed.
 - First run: enable **Developer Mode** on the phone (Settings ▸ Privacy & Security)
@@ -22,8 +24,8 @@ diff-friendly.
   Bold / gym-friendly styling: strong accent, large touch targets, chunky buttons.
 - **History** — browse every session; pull to refresh from GitHub.
 - **Trends** — per-lift progression chart (top-set weight by default; Est. 1RM as a
-  secondary metric; max-reps for bodyweight lifts) with short-term (3-week) and
-  long-term (all-time) change tiles.
+  secondary metric; added-load or max-reps for bodyweight lifts) with short-term
+  (3-week) and long-term (all-time) change tiles.
 - **Settings** — GitHub owner / repo / path / branch + a fine-grained token.
 
 ## GitHub token
