@@ -1,0 +1,88 @@
+import SwiftUI
+
+/// A searchable sheet for choosing an exercise: your own history first,
+/// then the built-in library. Typing a new name that matches nothing
+/// offers a "Use …" row so you can add anything.
+struct ExercisePickerView: View {
+    let history: [String]
+    let onPick: (String) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var query = ""
+
+    private var normalizedQuery: String {
+        query.trimmingCharacters(in: .whitespaces).lowercased()
+    }
+
+    private var filteredHistory: [String] {
+        filter(history)
+    }
+
+    private var filteredLibrary: [String] {
+        let inHistory = Set(history.map { $0.lowercased() })
+        return filter(ExerciseLibrary.all.filter { !inHistory.contains($0.lowercased()) })
+    }
+
+    private var exactMatchExists: Bool {
+        !normalizedQuery.isEmpty &&
+        (history + ExerciseLibrary.all).contains { $0.lowercased() == normalizedQuery }
+    }
+
+    private func filter(_ names: [String]) -> [String] {
+        guard !normalizedQuery.isEmpty else { return names }
+        return names.filter { $0.lowercased().contains(normalizedQuery) }
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if !normalizedQuery.isEmpty && !exactMatchExists {
+                    Section {
+                        Button {
+                            pick(normalizedQuery)
+                        } label: {
+                            Label("Use “\(normalizedQuery)”", systemImage: "plus.circle.fill")
+                        }
+                    }
+                }
+
+                if !filteredHistory.isEmpty {
+                    Section("Your exercises") {
+                        ForEach(filteredHistory, id: \.self) { row($0) }
+                    }
+                }
+
+                if !filteredLibrary.isEmpty {
+                    Section("Library") {
+                        ForEach(filteredLibrary, id: \.self) { row($0) }
+                    }
+                }
+            }
+            .searchable(text: $query, prompt: "Search or type a new name")
+            .navigationTitle("Choose exercise")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
+    }
+
+    private func row(_ name: String) -> some View {
+        Button { pick(name) } label: {
+            HStack {
+                Text(name)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption).foregroundStyle(.tertiary)
+            }
+        }
+        .foregroundStyle(.primary)
+    }
+
+    private func pick(_ name: String) {
+        onPick(name)
+        dismiss()
+    }
+}

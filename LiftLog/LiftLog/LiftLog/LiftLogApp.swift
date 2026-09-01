@@ -1,17 +1,14 @@
-//
-//  LiftLogApp.swift
-//  LiftLog
-//
-//  Created by Christoffer Mattsson Langseth on 2026-09-01.
-//
-
 import SwiftUI
 
 @main
 struct LiftLogApp: App {
+    @StateObject private var store = Store()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(store)
+                .task { await store.load() }
         }
     }
 }

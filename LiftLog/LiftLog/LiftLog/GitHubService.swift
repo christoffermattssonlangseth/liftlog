@@ -52,6 +52,9 @@ struct GitHubService {
         comps.queryItems = [URLQueryItem(name: "ref", value: branch)]
         var request = URLRequest(url: comps.url!)
         authorized(&request)
+        // Never serve a stale SHA from cache — that causes 409 conflicts on the next PUT.
+        request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+        request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
 
         let (data, response) = try await URLSession.shared.data(for: request)
         let http = response as! HTTPURLResponse
