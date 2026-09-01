@@ -1,11 +1,31 @@
+<img src="LiftLog/Assets.xcassets/AppIcon.appiconset/icon-1024.png" width="88" align="left" hspace="12" alt="LiftLog icon">
+
 # LiftLog — iOS workout logger
 
 A native SwiftUI app that logs workouts into a plain-text `training.md` and
-pushes each entry straight to GitHub via the Contents API. No server, no
-database — `training.md` stays the single source of truth, human-readable and
-diff-friendly. The log lives in its own repo
-([christoffermattssonlangseth/training.md](https://github.com/christoffermattssonlangseth/training.md));
-point the app at it from the **Settings** tab.
+pushes each entry straight to a GitHub repo via the Contents API. No server, no
+database — the text file stays the single source of truth, human-readable and
+diff-friendly.
+
+<br clear="left">
+
+Point the app at any repo you control from the **Settings** tab (GitHub owner /
+repo / path / branch + a fine-grained token). It reads and writes one file, so
+your training history is portable, greppable, and outlives the app itself.
+
+## `training.md` format
+
+One line per exercise per day; a blank line separates dates:
+
+```
+2026-08-30 deadlift 82.5x8 82.5x8 82.5x8
+2026-08-30 chin-ups bwx6 bwx6 bw+5x6
+```
+
+- **Date** — ISO `YYYY-MM-DD`. Exercises sharing a date form one session.
+- **Exercise** — lowercase `kebab-case` (consistent spelling groups sessions for trends).
+- **Sets** — space-separated `weightxreps` tokens: `82.5x8` (kg × reps),
+  `bwx6` (bodyweight × reps), `bw+5x8` (bodyweight **+ 5 kg** × reps).
 
 ## Open & run
 - Open **`LiftLog.xcodeproj`** in Xcode.
