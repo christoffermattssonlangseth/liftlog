@@ -38,15 +38,20 @@ enum WorkoutParser {
             .sorted { $0.date < $1.date }
     }
 
-    /// Parse a single token like "46.5x8" or "bwx3".
+    /// Parse a single token like "46.5x8", "bwx3" or "bw+5x8".
     static func parseSet(_ token: String) -> WorkSet? {
         let parts = token.lowercased().split(separator: "x")
         guard parts.count == 2, let reps = Int(parts[1]) else { return nil }
-        if parts[0] == "bw" {
-            return WorkSet(weight: nil, reps: reps)
+        let load = parts[0]
+        if load == "bw" {
+            return WorkSet(weight: nil, added: nil, reps: reps)
         }
-        guard let weight = Double(parts[0]) else { return nil }
-        return WorkSet(weight: weight, reps: reps)
+        if load.hasPrefix("bw+") {
+            guard let added = Double(load.dropFirst(3)) else { return nil }
+            return WorkSet(weight: nil, added: added, reps: reps)
+        }
+        guard let weight = Double(load) else { return nil }
+        return WorkSet(weight: weight, added: nil, reps: reps)
     }
 
     /// Serialize sessions back to the file format (ascending date, blank line between dates).

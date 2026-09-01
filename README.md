@@ -16,8 +16,10 @@ diff-friendly.
 
 ## Tabs
 - **Session** — pick a date, choose an exercise (searchable list + your history,
-  or type a new name), enter weight/reps from the keyboard, and "Finish exercise"
-  to add it to the day. A live "Today's Session" list shows the workout building up.
+  or type a new name), enter weight/reps on the big number pads, and "Finish
+  exercise" to add it to the day. A live "Today's Session" list shows the workout
+  building up, and a **rest timer** starts counting up each time you add a set.
+  Bold / gym-friendly styling: strong accent, large touch targets, chunky buttons.
 - **History** — browse every session; pull to refresh from GitHub.
 - **Trends** — per-lift progression chart (top-set weight by default; Est. 1RM as a
   secondary metric; max-reps for bodyweight lifts) with short-term (3-week) and

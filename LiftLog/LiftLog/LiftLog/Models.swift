@@ -1,17 +1,31 @@
 import Foundation
 
-/// One set within an exercise. Weight is nil for bodyweight movements (chin-ups etc.).
+/// One set within an exercise.
+///
+/// Three shapes of load, matching the training.md tokens:
+/// - absolute barbell load — `weight` set, `added` nil       → "82.5x8"
+/// - pure bodyweight        — `weight` nil, `added` nil/0     → "bwx8"
+/// - bodyweight + extra load — `weight` nil, `added` > 0      → "bw+5x8"
 struct WorkSet: Identifiable, Equatable, Codable {
     var id = UUID()
-    var weight: Double?   // nil => bodyweight ("bw")
+    var weight: Double?   // absolute load; nil => a bodyweight movement
+    var added: Double?    // extra load on a bodyweight movement (bw+X); nil/0 => none
     var reps: Int
 
+    /// True for any bodyweight-based movement, whether or not weight is added.
     var isBodyweight: Bool { weight == nil }
 
-    /// Serialize to the training.md token, e.g. "46.5x8" or "bwx3".
+    /// Serialize to the training.md token, e.g. "46.5x8", "bwx3" or "bw+5x8".
     var token: String {
-        let w = weight.map(WorkSet.formatWeight) ?? "bw"
-        return "\(w)x\(reps)"
+        let load: String
+        if let weight {
+            load = WorkSet.formatWeight(weight)
+        } else if let added, added > 0 {
+            load = "bw+\(WorkSet.formatWeight(added))"
+        } else {
+            load = "bw"
+        }
+        return "\(load)x\(reps)"
     }
 
     static func formatWeight(_ w: Double) -> String {

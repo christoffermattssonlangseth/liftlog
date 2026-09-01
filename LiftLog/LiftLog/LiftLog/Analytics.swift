@@ -20,12 +20,13 @@ enum Analytics {
     enum Metric: String, CaseIterable, Identifiable {
         case topSet = "Top set"      // heaviest weight lifted — the direct intensity signal
         case oneRepMax = "Est. 1RM"  // derived, for comparing across rep schemes
+        case addedLoad = "Added load" // extra load on a bodyweight lift (bw+X), where weight progresses
         case maxReps = "Max reps"    // for bodyweight lifts, where reps are the progression
         var id: String { rawValue }
 
         var unit: String {
             switch self {
-            case .topSet, .oneRepMax: return "kg"
+            case .topSet, .oneRepMax, .addedLoad: return "kg"
             case .maxReps: return "reps"
             }
         }
@@ -51,10 +52,17 @@ enum Analytics {
         return !sets.isEmpty && sets.allSatisfy(\.isBodyweight)
     }
 
+    /// Has any bodyweight set ever carried added load (bw+X)?
+    static func hasAddedLoad(_ name: String, in sessions: [Session]) -> Bool {
+        allSets(name, in: sessions).contains { ($0.added ?? 0) > 0 }
+    }
+
     /// Metrics that make sense for this exercise. Weighted lifts lead with top-set
-    /// weight (intensity); bodyweight lifts progress by reps.
+    /// weight (intensity); bodyweight lifts progress by reps — or by added load once
+    /// you start hanging plates on (bw+X), which stays continuous from pure bodyweight.
     static func availableMetrics(_ name: String, in sessions: [Session]) -> [Metric] {
-        isBodyweight(name, in: sessions) ? [.maxReps] : [.topSet, .oneRepMax]
+        guard isBodyweight(name, in: sessions) else { return [.topSet, .oneRepMax] }
+        return hasAddedLoad(name, in: sessions) ? [.addedLoad, .maxReps] : [.maxReps]
     }
 
     /// One value per session date for the chosen metric.
@@ -72,6 +80,9 @@ enum Analytics {
                 value = ex.sets.compactMap { set in
                     set.weight.map { epley(weight: $0, reps: set.reps) }
                 }.max()
+            case .addedLoad:
+                // Baseline of 0 for pure bodyweight sessions keeps the line continuous.
+                value = ex.sets.map { $0.added ?? 0 }.max()
             case .maxReps:
                 value = ex.sets.map { Double($0.reps) }.max()
             }
