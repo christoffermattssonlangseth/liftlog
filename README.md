@@ -1,4 +1,6 @@
-<img src="LiftLog/Assets.xcassets/AppIcon.appiconset/icon-1024.png" width="88" align="left" hspace="12" alt="LiftLog icon">
+<p align="center">
+  <img src="LiftLog/Assets.xcassets/AppIcon.appiconset/icon-1024.png" width="120" alt="LiftLog icon">
+</p>
 
 # LiftLog — iOS workout logger
 
@@ -6,8 +8,6 @@ A native SwiftUI app that logs workouts into a plain-text `training.md` and
 pushes each entry straight to a GitHub repo via the Contents API. No server, no
 database — the text file stays the single source of truth, human-readable and
 diff-friendly.
-
-<br clear="left">
 
 Point the app at any repo you control from the **Settings** tab (GitHub owner /
 repo / path / branch + a fine-grained token). It reads and writes one file, so
