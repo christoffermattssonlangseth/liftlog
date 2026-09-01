@@ -9,3 +9,6 @@ xcuserdata/
 # Keep the LiftLog source files (they live in ios/LiftLog/).
 # The generated .xcodeproj can be committed or ignored — your call:
 # *.xcodeproj/
+
+# Swift Package Manager
+.build/

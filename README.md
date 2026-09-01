@@ -13,6 +13,10 @@ Point the app at any repo you control from the **Settings** tab (GitHub owner /
 repo / path / branch + a fine-grained token). It reads and writes one file, so
 your training history is portable, greppable, and outlives the app itself.
 
+<p align="center">
+  <img src="docs/session.png" width="300" alt="LiftLog Session screen — bold, gym-friendly logging UI">
+</p>
+
 ## `training.md` format
 
 One line per exercise per day; a blank line separates dates:
@@ -47,6 +51,21 @@ One line per exercise per day; a blank line separates dates:
   secondary metric; added-load or max-reps for bodyweight lifts) with short-term
   (3-week) and long-term (all-time) change tiles.
 - **Settings** — GitHub owner / repo / path / branch + a fine-grained token.
+
+## Tests
+The pure-logic layer (parsing, serialization, analytics) lives in `LiftLog/Core`
+and is Foundation-only, so it builds and runs as a Swift package with no
+simulator:
+
+```
+swift test
+```
+
+The same files compile into the iOS target via Xcode's synchronized folder, so
+`swift test` exercises the exact production code. Coverage: `training.md`
+parse/serialize round-trips, the `bw` / `bw+5` bodyweight tokens, malformed-line
+handling, and the Trends analytics (top-set, Est. 1RM, added-load series, change
+tiles).
 
 ## GitHub token
 Create a **fine-grained personal access token** scoped to only this repo with
