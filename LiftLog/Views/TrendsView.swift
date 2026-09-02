@@ -6,7 +6,8 @@ import Charts
 struct TrendsView: View {
     @EnvironmentObject var store: Store
 
-    @State private var exercise = ""
+    // Persisted so Trends reopens on the lift you last looked at.
+    @AppStorage("trends_exercise") private var exercise = ""
     @State private var metric: Analytics.Metric = .topSet
 
     private var exercises: [String] { store.knownExercises.sorted() }
@@ -154,8 +155,25 @@ struct TrendsView: View {
     }
 
     private func ensureSelection() {
-        if exercise.isEmpty { exercise = exercises.first ?? "" }
+        // Keep a valid selection; when there isn't one, default to the lift you log
+        // most (a better proxy for "the one I care about" than alphabetical order).
+        if exercise.isEmpty || !exercises.contains(exercise) { exercise = mostLogged }
         clampMetric()
+    }
+
+    /// The exercise appearing in the most sessions (ties broken alphabetically).
+    private var mostLogged: String {
+        var count: [String: Int] = [:]     // keyed by lowercased name
+        var display: [String: String] = [:]
+        for name in store.sessions.flatMap({ $0.exercises.map(\.name) }) {
+            let key = name.lowercased()
+            count[key, default: 0] += 1
+            if display[key] == nil { display[key] = name }
+        }
+        let best = count.max { a, b in
+            a.value != b.value ? a.value < b.value : a.key > b.key
+        }
+        return best.flatMap { display[$0.key] } ?? exercises.first ?? ""
     }
 
     private func clampMetric() {

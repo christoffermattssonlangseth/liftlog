@@ -207,9 +207,9 @@ struct LogView: View {
 
                 Button { addSet() } label: {
                     Text("+ ADD SET")
-                        .font(.headline.weight(.heavy)).tracking(1)
+                        .font(.subheadline.weight(.heavy)).tracking(1)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 54)
+                        .frame(height: 44)
                 }
                 .buttonStyle(.bordered)
                 .tint(Theme.accent)
@@ -326,10 +326,10 @@ struct LogView: View {
             HStack {
                 if store.isBusy { ProgressView().tint(.white) }
                 Text(finishTitle)
-                    .font(.title3.weight(.heavy)).tracking(0.5)
+                    .font(.headline.weight(.heavy)).tracking(0.5)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 58)
+            .frame(height: 48)
         }
         .buttonStyle(.borderedProminent)
         .tint(Theme.accent)
