@@ -77,7 +77,21 @@ struct LogView: View {
                 }
             }
             .refreshable { await store.load() }
+            .onAppear { applyEditRequest() }
+            .onChange(of: store.editRequest) { _ in applyEditRequest() }
         }
+    }
+
+    /// Pull a "edit this past entry" request from History into the input area.
+    private func applyEditRequest() {
+        guard let req = store.editRequest else { return }
+        let key = Session.dateFormatter.string(from: req.date)
+        if let ex = store.sessions.first(where: { $0.dateString == key })?
+            .exercises.first(where: { $0.name.caseInsensitiveCompare(req.name) == .orderedSame }) {
+            date = req.date
+            loadForEditing(ex)
+        }
+        store.editRequest = nil
     }
 
     // MARK: - Section label
@@ -151,8 +165,8 @@ struct LogView: View {
                     showingPicker = true
                 } label: {
                     HStack(spacing: 10) {
-                        Text(name.isEmpty ? "CHOOSE EXERCISE" : Theme.displayName(name))
-                            .font(.system(size: 28, weight: .heavy, design: .rounded))
+                        Text(name.isEmpty ? "CHOOSE EXERCISE" : Theme.readableName(name))
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
                             .foregroundStyle(name.isEmpty ? .secondary : .primary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
@@ -381,10 +395,12 @@ struct LogView: View {
 
     private func finishExercise() async {
         let entry = ExerciseEntry(name: name.trimmingCharacters(in: .whitespaces), sets: sets)
-        await store.commit(entry, on: date,
+        let result = await store.commit(entry, on: date,
                            message: "Log \(entry.name) \(Session.dateFormatter.string(from: date))")
-        if store.status.hasSuffix("✓") {
-            // Reset the input for the next exercise; today's session card keeps the record.
+        // Reset on a push OR an offline queue — both keep the entry; only a hard
+        // failure leaves the input so the user can retry. Today's session card
+        // keeps the record either way.
+        if result != .failed {
             name = ""; sets = []; weightText = ""; addedText = ""; repsText = ""; isBodyweight = false
             restStart = nil
             focus = nil

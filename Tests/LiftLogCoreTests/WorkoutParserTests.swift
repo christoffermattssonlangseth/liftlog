@@ -45,6 +45,12 @@ final class WorkoutParserTests: XCTestCase {
         XCTAssertEqual(WorkSet(weight: nil, added: 0, reps: 6).token, "bwx6")      // +0 collapses to bw
     }
 
+    func testFractionalWeightFormatsToOneDecimal() {
+        XCTAssertEqual(WorkSet(weight: 82.5, added: nil, reps: 8).token, "82.5x8")
+        // A messy float rounds cleanly instead of leaking "82.50000001".
+        XCTAssertEqual(WorkSet(weight: 82.50000001, added: nil, reps: 8).token, "82.5x8")
+    }
+
     // MARK: - parse / serialize
 
     private let sample = """

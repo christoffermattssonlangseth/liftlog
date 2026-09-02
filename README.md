@@ -61,7 +61,8 @@ that don't exist yet, no database migration required.
   exercise" to add it to the day. A live "Today's Session" list shows the workout
   building up, and a **rest timer** starts counting up each time you add a set.
   Bold / gym-friendly styling: strong accent, large touch targets, chunky buttons.
-- **History** — browse every session; pull to refresh from GitHub.
+- **History** — browse every session; pull to refresh from GitHub. Swipe any
+  exercise to delete it (with a confirm), which is pushed like any other edit.
 - **Trends** — per-lift progression chart (top-set weight by default; Est. 1RM as a
   secondary metric; added-load or max-reps for bodyweight lifts) with short-term
   (3-week) and long-term (all-time) change tiles.
@@ -92,3 +93,13 @@ Each save **fetches the current `training.md`, merges the one edited exercise in
 it, then writes** — it never serializes stale in-memory state, so a save can't drop
 history that exists on GitHub. The fetch bypasses the URL cache and retries on
 GitHub 409 conflicts to avoid stale-SHA errors.
+
+## Offline
+Gyms eat signal, so writes are offline-first. If a save (or delete) can't reach
+GitHub, it's **queued locally and applied optimistically** — the entry shows up in
+the app immediately — and the file's last-known content is cached so History and
+Trends still work with no connection. The queue **flushes automatically on the next
+successful load or save**, replaying each change through the same safe
+merge-on-remote path; you can also see and retry it from **Settings ▸ Waiting to
+sync**. The queue survives an app kill (persisted in `UserDefaults`; the token stays
+in the Keychain).

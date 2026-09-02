@@ -30,7 +30,9 @@ struct WorkSet: Identifiable, Equatable, Codable {
 
     static func formatWeight(_ w: Double) -> String {
         if w == w.rounded() { return String(Int(w)) }
-        return String(w)
+        // Gym plates step in fractions of a kg; one decimal is plenty and keeps the
+        // token clean (no "82.50000001"). Always "." — never a locale comma.
+        return String(format: "%.1f", w)
     }
 }
 

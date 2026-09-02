@@ -14,4 +14,10 @@ enum Theme {
     static func displayName(_ raw: String) -> String {
         raw.replacingOccurrences(of: "-", with: " ").uppercased()
     }
+
+    /// Like `displayName` but keeps the original casing — e.g.
+    /// "over-head-press" -> "over head press". Used where all-caps reads too shouty.
+    static func readableName(_ raw: String) -> String {
+        raw.replacingOccurrences(of: "-", with: " ")
+    }
 }

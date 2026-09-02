@@ -17,12 +17,14 @@ struct GitHubService {
 
     enum GitHubError: LocalizedError {
         case badResponse(Int, String)
+        case notHTTP
         case missingConfig
         case decoding
 
         var errorDescription: String? {
             switch self {
             case .badResponse(let code, let body): return "GitHub \(code): \(body)"
+            case .notHTTP: return "Unexpected non-HTTP response from GitHub."
             case .missingConfig: return "Fill in owner, repo, path and token in Settings."
             case .decoding: return "Couldn't read GitHub's response."
             }
@@ -57,7 +59,7 @@ struct GitHubService {
         request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
 
         let (data, response) = try await URLSession.shared.data(for: request)
-        let http = response as! HTTPURLResponse
+        guard let http = response as? HTTPURLResponse else { throw GitHubError.notHTTP }
         if http.statusCode == 404 { return nil }
         guard (200..<300).contains(http.statusCode) else {
             throw GitHubError.badResponse(http.statusCode, String(data: data, encoding: .utf8) ?? "")
@@ -72,8 +74,11 @@ struct GitHubService {
         return FileState(content: content, sha: sha)
     }
 
-    /// Create or update the file. Pass the sha from a prior fetch to update; nil to create.
-    func put(content: String, sha: String?, message: String) async throws {
+    /// Create or update the file. Pass the sha from a prior fetch to update; nil to
+    /// create. Returns the file's *new* blob sha from the response, so callers can
+    /// track current state without an extra fetch.
+    @discardableResult
+    func put(content: String, sha: String?, message: String) async throws -> String? {
         try validated()
         var request = URLRequest(url: contentsURL)
         request.httpMethod = "PUT"
@@ -89,9 +94,13 @@ struct GitHubService {
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (data, response) = try await URLSession.shared.data(for: request)
-        let http = response as! HTTPURLResponse
+        guard let http = response as? HTTPURLResponse else { throw GitHubError.notHTTP }
         guard (200..<300).contains(http.statusCode) else {
             throw GitHubError.badResponse(http.statusCode, String(data: data, encoding: .utf8) ?? "")
         }
+        // Response shape: { "content": { "sha": "…" }, … }
+        let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+        let contentObj = json?["content"] as? [String: Any]
+        return contentObj?["sha"] as? String
     }
 }

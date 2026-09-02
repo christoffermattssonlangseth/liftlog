@@ -24,6 +24,22 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                if !store.pending.isEmpty {
+                    Section("Waiting to sync") {
+                        ForEach(store.pending) { write in
+                            HStack {
+                                Text(Theme.displayName(write.exerciseName))
+                                    .font(.subheadline.weight(.semibold))
+                                Spacer()
+                                Text(Session.dateFormatter.string(from: write.date))
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                        Text("^[\(store.pending.count) change](inflect: true) saved offline. Reloading below pushes them.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+
                 Section {
                     Button {
                         Task { await store.load() }
