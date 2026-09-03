@@ -46,7 +46,7 @@ struct LogView: View {
                 VStack(spacing: 16) {
                     dateCard
                     if !todayExercises.isEmpty { todaySessionCard }
-                    sectionLabel("ADD EXERCISE")
+                    sectionLabel("add exercise")
                     exerciseCard
                     addSetCard
                     if restStart != nil { restTimerCard }
@@ -58,7 +58,7 @@ struct LogView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(Theme.backgroundView)
             .navigationTitle("Session")
             .sheet(isPresented: $showingPicker) {
                 ExercisePickerView(history: store.knownExercises) { picked in
@@ -123,7 +123,7 @@ struct LogView: View {
         Card {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("TODAY'S SESSION")
+                    Text("today's session")
                         .font(.caption.weight(.heavy)).tracking(1.5)
                         .foregroundStyle(.secondary)
                     Spacer()
@@ -132,7 +132,7 @@ struct LogView: View {
                 }
                 ForEach(todayExercises) { ex in
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(Theme.displayName(ex.name))
+                        Text(Theme.readableName(ex.name))
                             .font(.subheadline.weight(.heavy)).tracking(0.5)
                         Text(ex.sets.map(\.token).joined(separator: "   "))
                             .font(.footnote.weight(.medium)).foregroundStyle(.secondary)
@@ -140,7 +140,7 @@ struct LogView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 12)
-                    .background(Color(.systemGray6), in: RoundedRectangle(cornerRadius: 12))
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .overlay(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 2)
                             .fill(Theme.accent)
@@ -165,7 +165,7 @@ struct LogView: View {
                     showingPicker = true
                 } label: {
                     HStack(spacing: 10) {
-                        Text(name.isEmpty ? "CHOOSE EXERCISE" : Theme.readableName(name))
+                        Text(name.isEmpty ? "choose exercise" : Theme.readableName(name))
                             .font(.system(size: 22, weight: .bold, design: .rounded))
                             .foregroundStyle(name.isEmpty ? .secondary : .primary)
                             .lineLimit(1)
@@ -178,7 +178,7 @@ struct LogView: View {
                 }
                 if let last = lastEntry {
                     Label {
-                        Text("Last: " + last.sets.map(\.token).joined(separator: "  "))
+                        Text("last: " + last.sets.map(\.token).joined(separator: "  "))
                     } icon: {
                         Image(systemName: "clock.arrow.circlepath")
                     }
@@ -206,12 +206,12 @@ struct LogView: View {
                 }
 
                 Button { addSet() } label: {
-                    Text("+ ADD SET")
+                    Text("+ add set")
                         .font(.subheadline.weight(.heavy)).tracking(1)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.glass)
                 .tint(Theme.accent)
                 .disabled(!canAddSet)
 
@@ -222,7 +222,7 @@ struct LogView: View {
                 } label: {
                     HStack(spacing: 5) {
                         Image(systemName: isBodyweight ? "checkmark.circle.fill" : "circle")
-                        Text("Bodyweight exercise")
+                        Text("bodyweight exercise")
                     }
                     .font(.caption)
                     .foregroundStyle(isBodyweight ? Theme.accent : .secondary)
@@ -239,7 +239,7 @@ struct LogView: View {
         Card {
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("REST")
+                    Text("rest")
                         .font(.caption.weight(.heavy)).tracking(1.5)
                         .foregroundStyle(.secondary)
                     TimelineView(.periodic(from: restStart ?? Date(), by: 1)) { context in
@@ -254,7 +254,7 @@ struct LogView: View {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.title2.weight(.bold))
                         .frame(width: 52, height: 52)
-                        .background(Color(.systemGray6), in: Circle())
+                        .background(.ultraThinMaterial, in: Circle())
                 }
                 .buttonStyle(.plain)
                 Button { restStart = nil } label: {
@@ -262,7 +262,7 @@ struct LogView: View {
                         .font(.title3.weight(.bold))
                         .foregroundStyle(.secondary)
                         .frame(width: 52, height: 52)
-                        .background(Color(.systemGray6), in: Circle())
+                        .background(.ultraThinMaterial, in: Circle())
                 }
                 .buttonStyle(.plain)
             }
@@ -279,7 +279,7 @@ struct LogView: View {
     private var setsCard: some View {
         Card {
             VStack(alignment: .leading, spacing: 10) {
-                Text("CURRENT SETS")
+                Text("current sets")
                     .font(.caption.weight(.heavy)).tracking(1.5)
                     .foregroundStyle(.secondary)
                 ForEach(Array(sets.enumerated()), id: \.element.id) { idx, set in
@@ -309,7 +309,7 @@ struct LogView: View {
                         restStart = Date()
                     }
                 } label: {
-                    Label("Repeat last set", systemImage: "arrow.uturn.down")
+                    Label("repeat last set", systemImage: "arrow.uturn.down")
                         .font(.footnote.weight(.semibold))
                 }
                 .tint(Theme.accent)
@@ -331,14 +331,14 @@ struct LogView: View {
             .frame(maxWidth: .infinity)
             .frame(height: 48)
         }
-        .buttonStyle(.borderedProminent)
+        .buttonStyle(.glassProminent)
         .tint(Theme.accent)
         .disabled(!canFinish)
     }
 
     private var finishTitle: String {
         let alreadyLogged = todayExercises.contains { $0.name.caseInsensitiveCompare(name) == .orderedSame }
-        return alreadyLogged ? "UPDATE EXERCISE" : "FINISH EXERCISE"
+        return alreadyLogged ? "update exercise" : "finish exercise"
     }
 
     // MARK: - Helpers
@@ -346,7 +346,7 @@ struct LogView: View {
     private func bigField(title: String, text: Binding<String>,
                           keyboard: UIKeyboardType, focusValue: Field) -> some View {
         VStack(spacing: 6) {
-            Text(title.uppercased())
+            Text(title.lowercased())
                 .font(.caption.weight(.heavy)).tracking(1)
                 .foregroundStyle(.secondary)
             TextField("0", text: text)
@@ -356,11 +356,11 @@ struct LogView: View {
                 .font(.system(size: 40, weight: .heavy, design: .rounded))
                 .frame(maxWidth: .infinity)
                 .frame(height: Theme.bigFieldHeight)
-                .background(Color(.systemGray6), in: RoundedRectangle(cornerRadius: 14))
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .strokeBorder(focus == focusValue ? Theme.accent : Color.clear,
-                                      lineWidth: 2)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(focus == focusValue ? Theme.accent : .white.opacity(0.15),
+                                      lineWidth: focus == focusValue ? 2 : 0.8)
                 )
         }
         .frame(maxWidth: .infinity)
@@ -408,14 +408,8 @@ struct LogView: View {
     }
 }
 
-/// A rounded container used to group content into cards.
+/// A frosted-glass container used to group content into cards.
 private struct Card<Content: View>: View {
     @ViewBuilder var content: Content
-    var body: some View {
-        content
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemGroupedBackground),
-                        in: RoundedRectangle(cornerRadius: Theme.corner))
-    }
+    var body: some View { content.glassCard() }
 }

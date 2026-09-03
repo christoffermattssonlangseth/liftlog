@@ -8,11 +8,12 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section("Repository") {
-                    labeled("Owner", text: $store.owner, placeholder: "your-username")
-                    labeled("Repo", text: $store.repo, placeholder: "training")
-                    labeled("File path", text: $store.path, placeholder: "training.md")
-                    labeled("Branch", text: $store.branch, placeholder: "main")
+                    labeled("owner", text: $store.owner, placeholder: "your-username")
+                    labeled("repo", text: $store.repo, placeholder: "training")
+                    labeled("file path", text: $store.path, placeholder: "training.md")
+                    labeled("branch", text: $store.branch, placeholder: "main")
                 }
+                .listRowBackground(Rectangle().fill(.regularMaterial))
 
                 Section("Token") {
                     SecureField("ghp_… (fine-grained PAT)", text: $store.token)
@@ -23,12 +24,13 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                .listRowBackground(Rectangle().fill(.regularMaterial))
 
                 if !store.pending.isEmpty {
                     Section("Waiting to sync") {
                         ForEach(store.pending) { write in
                             HStack {
-                                Text(Theme.displayName(write.exerciseName))
+                                Text(Theme.readableName(write.exerciseName))
                                     .font(.subheadline.weight(.semibold))
                                 Spacer()
                                 Text(Session.dateFormatter.string(from: write.date))
@@ -38,20 +40,24 @@ struct SettingsView: View {
                         Text("^[\(store.pending.count) change](inflect: true) saved offline. Reloading below pushes them.")
                             .font(.caption).foregroundStyle(.secondary)
                     }
+                    .listRowBackground(Rectangle().fill(.regularMaterial))
                 }
 
                 Section {
                     Button {
                         Task { await store.load() }
                     } label: {
-                        if store.isBusy { ProgressView() } else { Text("Test connection / reload") }
+                        if store.isBusy { ProgressView() } else { Text("test connection / reload") }
                     }
                     .disabled(store.isBusy)
                     if !store.status.isEmpty {
                         Text(store.status).font(.caption).foregroundStyle(.secondary)
                     }
                 }
+                .listRowBackground(Rectangle().fill(.regularMaterial))
             }
+            .scrollContentBackground(.hidden)
+            .background(Theme.backgroundView)
             .navigationTitle("Settings")
         }
     }

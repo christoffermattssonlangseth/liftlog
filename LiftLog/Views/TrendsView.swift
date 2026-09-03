@@ -40,7 +40,7 @@ struct TrendsView: View {
                     .padding()
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(Theme.backgroundView)
             .navigationTitle("Trends")
             .refreshable { await store.load() }
             .onAppear(perform: ensureSelection)
@@ -57,7 +57,7 @@ struct TrendsView: View {
             }
         } label: {
             HStack {
-                Text(exercise.isEmpty ? "Choose exercise" : exercise)
+                Text(exercise.isEmpty ? "choose exercise" : Theme.readableName(exercise))
                     .font(.title3.weight(.semibold))
                 Image(systemName: "chevron.up.chevron.down").font(.footnote)
                 Spacer()
@@ -65,8 +65,11 @@ struct TrendsView: View {
             .foregroundStyle(.primary)
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemGroupedBackground),
-                        in: RoundedRectangle(cornerRadius: 16))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Theme.corner, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.corner, style: .continuous)
+                    .strokeBorder(.white.opacity(0.18), lineWidth: 0.8)
+            )
         }
     }
 
@@ -82,7 +85,7 @@ struct TrendsView: View {
     private var chartCard: some View {
         CardBox {
             VStack(alignment: .leading, spacing: 8) {
-                Text(metric.rawValue.uppercased() + " OVER TIME")
+                Text(metric.rawValue.lowercased() + " over time")
                     .font(.caption).foregroundStyle(.secondary)
 
                 if series.count >= 2 {
@@ -126,7 +129,7 @@ struct TrendsView: View {
     private func statTile(title: String, subtitle: String, change: TrendChange?) -> some View {
         CardBox {
             VStack(alignment: .leading, spacing: 4) {
-                Text(title.uppercased()).font(.caption).foregroundStyle(.secondary)
+                Text(title.lowercased()).font(.caption).foregroundStyle(.secondary)
                 if let c = change {
                     HStack(spacing: 4) {
                         Image(systemName: c.isUp ? "arrow.up.right" : "arrow.down.right")
@@ -181,14 +184,8 @@ struct TrendsView: View {
     }
 }
 
-/// Reusable rounded card container.
+/// Reusable frosted-glass card container.
 private struct CardBox<Content: View>: View {
     @ViewBuilder var content: Content
-    var body: some View {
-        content
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemGroupedBackground),
-                        in: RoundedRectangle(cornerRadius: 16))
-    }
+    var body: some View { content.glassCard() }
 }

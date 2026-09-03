@@ -29,6 +29,11 @@ struct HistoryView: View {
                                     .foregroundStyle(.secondary)
                             }
                             .contentShape(Rectangle())
+                            .listRowBackground(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(.regularMaterial)
+                                    .padding(.vertical, 2)
+                            )
                             .onTapGesture {
                                 store.requestEdit(exercise: ex.name, on: session.date)
                             }
@@ -58,10 +63,12 @@ struct HistoryView: View {
                                            description: Text("Log a workout, or pull to refresh."))
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Theme.backgroundView)
             .refreshable { await store.load() }
             .navigationTitle("History")
             .confirmationDialog(
-                pendingDelete.map { "Delete \(Theme.displayName($0.name)) on \(Session.dateFormatter.string(from: $0.date))?" } ?? "",
+                pendingDelete.map { "Delete \(Theme.readableName($0.name)) on \(Session.dateFormatter.string(from: $0.date))?" } ?? "",
                 isPresented: Binding(get: { pendingDelete != nil },
                                      set: { if !$0 { pendingDelete = nil } }),
                 titleVisibility: .visible,
